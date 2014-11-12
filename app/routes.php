@@ -116,10 +116,16 @@ Route::post('invitee/{event}',function(VAEvent $event){
     Mail::send('emails.invitation', array(
         'inviter' => $user,
         'event' => $event,
-        'invitee' => $invitee
-    ), function($message)use($user,$invitee){
+        'invitee' => $invitee,
+        'welcomeText' => Input::get('text')
+    ), function($message)use($user,$invitee,$event){
         $message->from($user->email);
         $message->to($invitee->email);
+        $subject = "Einladung zu {$event->name}";
+        if ($event->validStartDate()){
+            $subject .= " am {$event->startDate}";
+        }
+        $message->subject($subject);
     });
     
 });

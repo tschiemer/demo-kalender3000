@@ -40,11 +40,11 @@
 </div>
 
 <div class="row event-list-item" ng-repeat="event in events | orderBy:'startDate'">
-    <div class="col-sm-3 clickable" ng-click="pick(event)">
-        <p class="lead text-center">{{ formatDate(event.startDate) }}</p>
-<!--        <a class="thumbnail">
-            <img ng-src="event.img"/>
-        </a>-->
+    <div class="col-sm-3 clickable text-center" ng-click="pick(event)">
+        <p class="lead" style="margin-bottom: 5px;">{{ formatDate(event.startDate) }}</p>
+<!--        <small ng-show="event.location">
+            <small><a ng-href="https://www.google.ch/maps/place/{{event.location}}" target="_blank">{{event.location}}</a></small>
+        </small>-->
     </div>
     <div class="col-sm-7 clickable" ng-click="pick(event)">
         <p><b>{{event.name}}</b></p>
