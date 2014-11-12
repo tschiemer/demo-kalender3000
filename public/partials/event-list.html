@@ -1,0 +1,72 @@
+<div ng-show="session.loggedIn()" class="row">
+    <div class="col-sm-12">
+        <a class="text-center"><h4 ng-click="toggleNewEventView()">Neuen Event erstellen</h4></a>
+        <!--<br/>-->
+        <form id="newEventForm" style="display:none" class="form-horizontal" role="form" ng-model="newEvent">
+            <div ng-include="'partials/event-edit.html'"></div>
+            
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button ng-click="saveEvent()" type="submit" class="btn btn-success">Erstellen</button>
+              </div>
+            </div>
+        </form>
+        <hr/>
+    </div>
+</div>
+
+<style>
+    div.event-list-item {
+        margin: 5px 0;
+        padding: 5px;
+        /*border: 1px solid transparent;*/
+        border-radius: 4px;
+        -webkit-transition: background .2s ease-in-out;
+        -o-transition: background .2s ease-in-out;
+        transition: background .2s ease-in-out;
+    }
+    div.event-list-item:hover {
+        /*border: 1px solid #ddf;*/
+        background-color: #269abc;
+    }
+</style>
+
+<div class="row" ng-hide="events.length">
+    <div class="col-sm-12">
+        <div class="alert alert-warning text-center text-capitalize" role="alert">
+            Keine Events gefunden!
+        </div>
+    </div>
+</div>
+
+<div class="row event-list-item" ng-repeat="event in events | orderBy:'startDate'">
+    <div class="col-sm-3 clickable" ng-click="pick(event)">
+        <p class="lead text-center">{{ formatDate(event.startDate) }}</p>
+<!--        <a class="thumbnail">
+            <img ng-src="event.img"/>
+        </a>-->
+    </div>
+    <div class="col-sm-7 clickable" ng-click="pick(event)">
+        <p><b>{{event.name}}</b></p>
+        <small>{{event.description}}</small>
+    </div>
+    <div class="col-sm-2 text-right">
+        <button ng-show="session.loggedIn()" ng-click="removeEvent(event)" class="btn btn-danger btn-sm">Löschen</button>
+    </div>
+</div>
+<!--
+<div class="row">
+    <div class="col-md-4" ng-repeat="event in events">
+            <figure class="effeckt-caption" data-effeckt-type="cover-fade">
+            <img ng-src="event.img" alt="event.name">
+            <a href="#">
+                <figcaption>
+                  <div class="effeckt-figcaption-wrap">
+                    <h3>Cover Fade</h3>
+                    <p>Lorem ipsum dolar.</p>
+                  </div>
+                </figcaption>
+            </a>
+          </figure>
+    </div>
+</div>-->

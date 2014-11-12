@@ -1,0 +1,26 @@
+<div class="row">
+    <div class="col-sm-2">
+        <p><a href="#users"><i class="glyphicon glyphicon-chevron-left"></i> Zurück</a></p>
+    </div>
+    <div class="col-sm-10">
+        <div class="row">
+            <div class="col-sm-9">
+                <div  ng-hide="editing">
+                    <p class="lead">{{user.username}}</p>
+
+                    <p>
+                    </p>
+                </div>
+                <!--<form ng-show="editing" class="form-horizontal" role="form" ng-model="editEvent" ng-include="'partials/event-edit.html'"></form>-->
+            </div>
+            <div class="col-sm-3 text-center" ng-show="session.loggedIn()">
+                <button ng-click="startEditing()" ng-hide="editing" class="btn btn-info">Ändern</button>
+                <div ng-show="editing">
+                    <button ng-click="saveChanges()" class="btn btn-success">Speichern</button><br/><br/>
+                    <button ng-click="discardChanges()" class="btn btn-danger">Abbrechen</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>

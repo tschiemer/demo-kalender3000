@@ -1,0 +1,65 @@
+<div ng-show="session.loggedIn()" class="row">
+    <div class="col-sm-12">
+        <a class="text-center"><h4 ng-click="toggleNewUserView()">Neuen Benutzer erstellen</h4></a>
+        <!--<br/>-->
+        <form id="newUserForm" style="display:none" class="form-horizontal" role="form" ng-model="newEvent">
+            <div class="form-group">
+              <label for="inputName" class="col-sm-2 control-label">Name</label>
+              <div class="col-sm-10">
+                <input ng-model="editUser.username" type="text" class="form-control" id="inputName" placeholder="Name">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+              <div class="col-sm-10">
+                <input ng-model="editUser.email" type="text" class="form-control" id="inputEmail" placeholder=Email>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="inputPassword" class="col-sm-2 control-label">Passwort</label>
+              <div class="col-sm-10">
+                <input ng-model="editUser.password" type="password" class="form-control" id="inputPassword" placeholder="Passwort">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button ng-click="saveUser()" type="submit" class="btn btn-success">Erstellen</button>
+              </div>
+            </div>
+        </form>
+        <hr/>
+    </div>
+</div>
+
+<style>
+    div.user-list-item {
+        margin: 5px 0;
+        padding: 5px;
+        /*border: 1px solid transparent;*/
+        border-radius: 4px;
+        -webkit-transition: background .2s ease-in-out;
+        -o-transition: background .2s ease-in-out;
+        transition: background .2s ease-in-out;
+    }
+    div.user-list-item:hover {
+        /*border: 1px solid #ddf;*/
+        background-color: #269abc;
+    }
+</style>
+
+<div class="row" ng-hide="users.length">
+    <div class="col-sm-12">
+        <div class="alert alert-warning text-center text-capitalize" role="alert">
+            Keine Benutzer gefunden!
+        </div>
+    </div>
+</div>
+
+<div class="row user-list-item" ng-repeat="user in users | orderBy:'username'">
+    <div class="col-sm-4">{{ user.username }}</div>
+    <div class="col-sm-4">{{ user.email }}</div>
+    <div class="col-sm-4 text-right">
+        <button ng-click="deleteUser(user)" class="btn btn-danger btn-sm">Löschen</button>
+    </div>
+</div>
