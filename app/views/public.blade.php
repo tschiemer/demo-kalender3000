@@ -9,7 +9,9 @@
         <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
         <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="bower_components/angular-bootstrap-datetimepicker/src/css/datetimepicker.css">
-        <!--<link rel="stylesheet" href="bower_components/ngEffeckt.scss/css/effeckt.css">-->
+<!--        <link rel="stylesheet" href="bower_components/ngEffeckt.scss/css/effeckt.css">-->
+        <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.min.css">
+        <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.bootstrap.min.css">
         <link rel="stylesheet" href="css/style.css">
         
         <script data-main="js/loader.js" src="bower_components/requirejs/require.js"></script>

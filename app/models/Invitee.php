@@ -2,6 +2,11 @@
 
 class Invitee extends Eloquent {
     
+    const PARTICIPATION_PENDING     = 'pending';
+    const PARTICIPATION_CONFIRMED   = 'confirmed';
+    const PARTICIPATION_DECLINED    = 'declined';
+    const PARTICIPATION_MAYBE       = 'maybe';
+    
     protected $table = 'invitees';
     
     public static function boot(){

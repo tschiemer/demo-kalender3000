@@ -2,11 +2,17 @@
     <div class="col-sm-2">
         <p><a href="#events"><i class="glyphicon glyphicon-chevron-left"></i> Zurück</a></p>
     </div>
-    <div class="col-sm-10">
+    <div class="col-sm-10" ng-show="!event || (event.state == 'draft' && !session.loggedIn())">
+        <div class="alert alert-warning">Event nicht gefunden.</div>
+    </div>
+    <div class="col-sm-10" ng-hide="!event || (event.state == 'draft' && !session.loggedIn())">
         <div class="row">
             <div class="col-sm-9">
                 <div  ng-hide="editing">
-                    <p class="lead">{{event.name}}</p>
+                    <p class="lead">
+                        <span ng-show="event.state=='draft'" class="label label-info">Entwurf</span>
+                        {{event.name}}
+                    </p>
 
                     <p>
                         <small>
@@ -35,24 +41,40 @@
         <hr/>
         
         <div ng-show="session.loggedIn()">
-            <form>
-                <div class="row">
-                    <div class="col-sm-3">
-                        <h4>Neuer Gast</h4>
-                    </div>
-                    <div class="col-sm-3">
-                        <input ng-model="newInvitee.name"  placeholder="Name" type="text" class="form-control">
-                    </div>
-                    <div class="col-sm-3">
-                        <input ng-model="newInvitee.email" placeholder="Email" type="email" class="form-control">
-                    </div>
-                    <div class="col-sm-3 text-center">
-                        <button ng-click="invite()" class="btn btn-success">Einladen</button>
+            
+            <h4>Neue Gäste Einladen</h4>
+            
+            <form name="newInviteeForm" class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Name*</label>
+                    <div class="col-sm-10">
+                        <input ng-model="newInvitee.name" type="text" class="form-control" placeholder="Name" required {{ newInviteeFormBusy ? 'disabled' : '' }}>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-offset-3 col-sm-6">
-                        <textarea ng-model="newInvitee.text" placeholder="Einlade-Text" class="form-control"></textarea>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Email</label>
+                    <div class="col-sm-10">
+                        <input ng-model="newInvitee.email" type="email" name="email" class="form-control" placeholder="Email" {{ newInviteeFormBusy ? 'disabled' : '' }}>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                      <div class="checkbox">
+                        <label>
+                          <input ng-model="newInvitee.sendEmail" type="checkbox" {{ newInviteeFormBusy ? 'disabled' : '' }}> Sende Einladungs-Email
+                        </label>
+                      </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="newInvitee.sendEmail">
+                    <label class="col-sm-2 control-label">Email-Text (optional)</label>
+                    <div class="col-sm-10">
+                        <textarea ng-model="newInvitee.text" type="text" class="form-control" placeholder="Hello my name is - my name is - my name is Slim Shady!" {{ newInviteeFormBusy ? 'disabled' : '' }}></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button ng-click="invite()" class="btn btn-success" {{ newInviteeFormBusy ? 'disabled' : '' }}>Einladen</button>
                     </div>
                 </div>
             </form>
@@ -81,12 +103,29 @@
             }
         </style>
         
-        <div class="row invitee-list-item" ng-repeat="invitee in invitees">
-            <div class="col-sm-3">{{invitee.name}}</div>
-            <div class="col-sm-3">{{invitee.email}}</div>
-            <div class="col-sm-3">{{invitee.participation}}</div>
-            <div ng-show="session.loggedIn()" class="col-sm-3 text-center">
-                <button ng-click="uninvite(invitee)" class="btn btn-danger">Ausladen</button>
+        <div class="row invitee-list-item" ng-repeat="invitee in invitees | orderBy:'name'">
+            <div class="col-sm-1 text-center">
+                <!--<span ng-show="invitee.participation == 'pending'">Unbekannt</span>-->
+                <span ng-show="invitee.participation == 'pending'" class="text-warning">?</span>
+                <span ng-show="invitee.participation == 'maybe'" class="text-warning">?</span>
+                <span ng-show="invitee.participation == 'confirmed'" class="glyphicon glyphicon-ok text-success"></span>
+                <span ng-show="invitee.participation == 'declined'" class="glyphicon glyphicon-remove text-danger"></span>
+            </div>
+            <div class="col-sm-2"><small>{{invitee.name}}</small></div>
+            <div class="col-sm-4"><small>{{invitee.email}}</small></div>
+            <div class="col-sm-4 text-center">
+                
+                <div class="btn-group" role="group">
+                    <button ng-show="invitee.participation == 'confirmed'" type="button" class="btn btn-success btn-xs" disabled>Bestätigen</button>
+                    <button ng-hide="invitee.participation == 'confirmed'" ng-click="confirm($index)" type="button" class="btn btn-success btn-xs">Bestätigen</button>
+                    <button ng-show="invitee.participation == 'maybe'" type="button" class="btn btn-default btn-xs" disabled>Vielleicht..</button>
+                    <button ng-hide="invitee.participation == 'maybe'" ng-click="maybe($index)" type="button" class="btn btn-default btn-xs">Vielleicht..</button>
+                    <button ng-show="invitee.participation == 'declined'" type="button" class="btn btn-warning btn-xs" disabled>Abmelden</button>
+                    <button ng-hide="invitee.participation == 'declined'" ng-click="decline($index)" type="button" class="btn btn-warning btn-xs">Abmelden</button>
+                </div>
+                <div ng-show="session.loggedIn()" style="margin:10px 0">
+                    <button ng-click="uninvite($index)" class="btn btn-danger btn-xs">Ausladen</button>
+                </div>
             </div>
         </div>
         

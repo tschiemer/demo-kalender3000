@@ -1,0 +1,52 @@
+            <div class="form-group">
+              <label for="inputName" class="col-sm-2 control-label">Name</label>
+              <div class="col-sm-10">
+                <input ng-model="editTodo.name" type="text" class="form-control" id="inputName" placeholder="Name">
+              </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Priorität</label>
+                <div class="col-sm-10">
+                    <select ng-model="editTodo.priority" class="form-control">
+                        <option value="critical">Kritisch</option>
+                        <option value="high">Hoch</option>
+                        <option value="normal">Normal</option>
+                        <option value="low">Tief</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+              <label for="inputDeadline" class="col-sm-2 control-label">Deadline</label>
+              <div class="col-sm-10">
+                    <div class="dropdown">
+                        <a class="dropdown-toggle my-toggle-select" id="dLabel" role="button" data-toggle="dropdown" data-target="#" href="">
+                            <div class="input-append"><input type="text" class="form-control input-large" data-ng-model="editTodo.deadline"><span class="add-on"><i
+                                    class="icon-calendar"></i></span>
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            <datetimepicker data-ng-model="editTodo.deadline"
+                                            data-datetimepicker-config="{ dropdownSelector: '.my-toggle-select' }"></datetimepicker>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Verantwortlich</label>
+                <div class="col-sm-10">
+                    <tags-input ng-model="editTodo.assignees" placeholder="Benutzer XY.."  add-from-autocomplete-only="true">
+                        <auto-complete source="findAutocompleteAssignees($query)" ></auto-complete>
+                    </tags-input>
+                </div>
+            </div>
+
+
+<!--<tags-input ng-model="tags">
+  <auto-complete source="loadItems($query)"></auto-complete>
+</tags-input>-->
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-10">
+                    <textarea ng-model="editTodo.description" class="form-control" rows="5"></textarea>
+                </div>
+            </div>

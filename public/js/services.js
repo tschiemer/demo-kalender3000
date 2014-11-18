@@ -65,11 +65,14 @@ vaServices.factory('User', ['$resource',
 vaServices.factory('Invitee', ['$resource',
     function($resource){
         return $resource('invitee/:eventId/:inviteeId', {}, {
-            get: {method:'GET'},
-            query: {method:'GET', isArray:true},
+//            get: {method:'GET'},
+//            query: {method:'GET', isArray:true},
             create: {method:'POST'},
             save: {method:'PUT'},
-            delete: {method:'DELETE'}
+//            delete: {method:'DELETE'},
+            confirmParticipation: {method: 'POST', url:'invitee/:eventId/:inviteeId/confirmed'},
+            declineParticipation: {method: 'POST', url:'invitee/:eventId/:inviteeId/declined'},
+            maybeParticipation: {method: 'POST', url:'invitee/:eventId/:inviteeId/maybe'}
     });
 }]);
 

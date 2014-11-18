@@ -31,15 +31,8 @@
     }
 </style>
 
-<div class="row" ng-hide="events.length">
-    <div class="col-sm-12">
-        <div class="alert alert-warning text-center text-capitalize" role="alert">
-            Keine Events gefunden!
-        </div>
-    </div>
-</div>
 
-<div class="row event-list-item" ng-repeat="event in events | orderBy:'startDate'">
+<div class="row event-list-item" ng-repeat="event in events | filter:(session.loggedIn() ? '' : 'live') | orderBy:'startDate' as results" ng-hide="!session.loggedIn() && event.state=='draft'">
     <div class="col-sm-3 clickable text-center" ng-click="pick(event)">
         <p class="lead" style="margin-bottom: 5px;">{{ formatDate(event.startDate) }}</p>
 <!--        <small ng-show="event.location">
@@ -47,26 +40,22 @@
         </small>-->
     </div>
     <div class="col-sm-7 clickable" ng-click="pick(event)">
-        <p><b>{{event.name}}</b></p>
+        <p>
+            <span ng-show="event.state=='draft'" class="label label-info">Entwurf</span>
+            <b>{{event.name}}</b>
+        </p>
         <small>{{event.description}}</small>
     </div>
     <div class="col-sm-2 text-right">
-        <button ng-show="session.loggedIn()" ng-click="removeEvent(event)" class="btn btn-danger btn-sm">Löschen</button>
+        <button ng-show="session.loggedIn()" ng-click="removeEvent($index)" class="btn btn-danger btn-sm">Löschen</button>
     </div>
 </div>
-<!--
-<div class="row">
-    <div class="col-md-4" ng-repeat="event in events">
-            <figure class="effeckt-caption" data-effeckt-type="cover-fade">
-            <img ng-src="event.img" alt="event.name">
-            <a href="#">
-                <figcaption>
-                  <div class="effeckt-figcaption-wrap">
-                    <h3>Cover Fade</h3>
-                    <p>Lorem ipsum dolar.</p>
-                  </div>
-                </figcaption>
-            </a>
-          </figure>
+
+
+<div class="row" ng-hide="results.length">
+    <div class="col-sm-12">
+        <div class="alert alert-warning text-center text-capitalize" role="alert">
+            Keine Events gefunden!
+        </div>
     </div>
-</div>-->
+</div>

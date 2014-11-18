@@ -7,7 +7,7 @@
 
     <p>Du wurdest von {{ $inviter->username }} zum Event <a href="{{ url("#/events/{$event->id}") }}">{{ $event->name }}</a> eingeladen:</p>
     
-    <p>{{ $welcomeText }}</p>
+    <blockquote>{{ $welcomeText }}</blockquote>
     
     <p><i>{{ $event->description }}</i></p>
     

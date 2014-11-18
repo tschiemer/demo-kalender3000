@@ -2,9 +2,10 @@ requirejs.config({
     baseUrl: '',
     paths: {
         angular: 'bower_components/angular/angular.min',
-        angularRoute: 'bower_components/angular-route/angular-route.min',
-        angularResource: 'bower_components/angular-resource/angular-resource.min',
-        angularBootstapDatetimePicker: 'bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker',
+        ngRoute: 'bower_components/angular-route/angular-route.min',
+        ngResource: 'bower_components/angular-resource/angular-resource.min',
+        ngBootstapDatetimePicker: 'bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker',
+        ngTagsInput: 'bower_components/ng-tags-input/ng-tags-input.min',
         bootstrap: 'bower_components/bootstrap/dist/js/bootstrap.min',
 //        bootstrapDatepicker: 'bower_components/bootstrap-datepicker/js/bootstrap-datepicker',
 //        bootstrapDatetimepicker: 'bower_components/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
@@ -16,11 +17,12 @@ requirejs.config({
 require(['jquery'],function(){
    require(['bootstrap','angular','moment'],function(){
        
-       require(['angularRoute','angularResource','angularBootstapDatetimePicker'],function(){
+       require(['ngRoute','ngResource','ngBootstapDatetimePicker','ngTagsInput'],function(){
            
             var vaApp = angular.module('vaApp', [
                 'ngRoute',
                 'ui.bootstrap.datetimepicker',
+                'ngTagsInput',
                 'vaControllers',
                 'vaServices'
             ]);
@@ -48,10 +50,10 @@ require(['jquery'],function(){
                        templateUrl: 'partials/user-list.html',
                        controller: 'userList'
                      }).
-                     when('/users/:userId', {
-                       templateUrl: 'partials/user-details.html',
-                       controller: 'userDetails'
-                     }).
+//                     when('/users/:userId', {
+//                       templateUrl: 'partials/user-details.html',
+//                       controller: 'userDetails'
+//                     }).
                      otherwise({
                        redirectTo: '/events'
                      });
