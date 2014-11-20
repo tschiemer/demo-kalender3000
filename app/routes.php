@@ -103,9 +103,9 @@ Route::get('logout',function(){
     Auth::logout();
 });
 
-Route::get('setting',array('before' => 'auth', function(){
+Route::get('setting',function(){
     return Setting::where('internal',FALSE)->get()->toJson(JSON_NUMERIC_CHECK);
-}));
+});
 
 Route::get('setting/{key}',function($key = NULL){
     $setting = Setting::where('key',$key)->first();
