@@ -220,15 +220,7 @@ Route::get('invitee/{event}',function(VAEvent $event){
 Route::post('invitee/{event}/{invitee}/{participation}',function(VAEvent $event, Invitee $invitee, $participation){
     $invitee->participation = $participation;
     $invitee->save();
-})->where('participation','confirmed','declined','maybe');
-//Route::post('invitee/{event}/{invitee}/decline',function(VAEvent $event, Invitee $invitee){
-//    $invitee->participation = Invitee::PARTICIPATION_DECLINED;
-//    $invitee->save();
-//});
-//Route::post('invitee/{event}/{invitee}/maybe',function(VAEvent $event, Invitee $invitee){
-//    $invitee->participation = Invitee::PARTICIPATION_MAYBE;
-//    $invitee->save();
-//});
+})->where('participation','confirmed|declined|maybe');
 
 Route::post('invitee/{event}',array('before' => 'auth', function(VAEvent $event){
     $invitee = new Invitee();
