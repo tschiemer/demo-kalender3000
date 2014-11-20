@@ -18,9 +18,14 @@ class CreateSettingsTable extends Migration {
                 
                 $table->increments('id');
                 $table->string('key');
-                $table->text('value')->nullable()->default(null);
+                $table->string('type')->nullable()->default(NULL);
+                $table->boolean('internal')->default(FALSE);
+                $table->text('value')->nullable()->default(NULL);
                 $table->timestamps();
             });
+            
+            Setting::set('pageTitle', "Kalender");
+//            Setting::set('n-per-page',4);
 	}
 
 	/**

@@ -24,11 +24,11 @@ class CreateUsersTable extends Migration {
                 $table->timestamps();
             });
             
-            $user = new User();
-            $user->username = 'admin';
-            $user->email = 'me@bar.foo';
-            $user->password = Hash::make('admin');
-            $user->save();
+//            $user = new User();
+//            $user->username = 'admin';
+//            $user->email = 'me@bar.foo';
+//            $user->password = Hash::make('admin');
+//            $user->save();
 	}
 
 	/**

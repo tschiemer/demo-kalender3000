@@ -37,6 +37,7 @@ Route::filter('auth', function()
 {
 	if (Auth::guest())
 	{
+            if (User::first()){ // only require auth if a user has been set
 		if (Request::ajax())
 		{
 			return Response::make('Unauthorized', 401);
@@ -45,6 +46,7 @@ Route::filter('auth', function()
 		{
 			return Redirect::guest('login');
 		}
+            }
 	}
 });
 
@@ -52,6 +54,15 @@ Route::filter('auth', function()
 Route::filter('auth.basic', function()
 {
 	return Auth::basic();
+});
+
+
+Route::filter('db.exists',function(){
+    try {
+        User::first();
+    } catch (Exception $ex) {
+        return Redirect::to('setup');
+    }
 });
 
 /*

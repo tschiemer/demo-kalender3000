@@ -1,26 +1,41 @@
 var vaControllers = angular.module('vaControllers', []);
 
-vaControllers.controller('menuController',
-    ['$scope','$location','Session',
-    function($scope,$location,Session){
+vaControllers.controller('Settings',
+    ['$scope','Session','Setting',
+    function($scope,Session,Setting){
+        $scope.session = Session;
+        $scope.settings = Setting.query();
         
-//        console.log($routeParams);
+        $scope.update = function(setting){
+            console.log(setting);
+        }
+}]);
+
+vaControllers.controller('menuController',
+    ['$scope','$location','Session','Setting',
+    function($scope,$location,Session,Setting){
 
         $scope.goto = function(target){
 //            console.log(target);
         };
         
         $scope.session = Session;
+        Setting.$.get({settingKey:"pageTitle"},function(data){
+            $scope.pageTitle = data.value;
+        });
+        
         $scope.credentials = {
             username: '',
             password: ''
         };
         $scope.login = function(){
-            Session.login($scope.credentials.username,$scope.credentials.password,function(data){
-//               console.log('logged in?', data); 
+            Session.login($scope.credentials.username,$scope.credentials.password,function(data,error){
+               console.log('logged in?', data,error); 
                $scope.credentials.password = '';
-               if (!data) {
+               if (data == false) {
                    alert('Ungültiger Benutzername / Passwort');
+               } else if (data == null && error){
+                   alert("Fehler bei der Anmeldung: " + error.error.message);
                }
             });
         };
@@ -94,7 +109,7 @@ vaControllers.controller('eventList',
             Event.create($scope.editEvent,function(event){
                 $scope.toggleNewEventView();
                 $scope.resetEditEvent();
-                $scope.event.push(event);
+                $scope.events.push(event);
             });
         };
         
@@ -235,17 +250,29 @@ vaControllers.controller('userList',
             $scope.editUser.pending = true;
             User.create($scope.editUser,function(user){
                 $scope.toggleNewUserView();
-                $scope.resetEditUser();
                 $scope.users.push(user);
                 $scope.editUser.pending = false;
+                
+                if (Session.isTemp()){
+                    Session.login($scope.editUser.email, $scope.editUser.password);
+                }
+                
+                $scope.resetEditUser();
             });
         };
         
         $scope.deleteUser = function($index){
             var user = $scope.users[$index];
+            console.log('user',user);
             User.delete({userId:user.id},function(){
 //                $scope.refreshList();
                 $scope.users.splice($index,1);
+                
+                if (user.id == Session.data.id){
+                    Session.logout(function(){
+                        document.location.reload();
+                    });
+                }
             });
         };
 }]);
@@ -263,6 +290,8 @@ vaControllers.controller('todoList',
     function ($scope,$location,$q,Session,Todo,User) {
         
         $scope.session = Session;
+        
+        $scope.showByState = '';
         
         $scope.refreshTodos = function(){
             $scope.todos = Todo.query();
@@ -344,6 +373,7 @@ vaControllers.controller('todoList',
 //            console.log(m.format('MMMM Do YYYY h:mm:ss a'));
             $scope.editTodo.deadline = m.format('YYYY-MM-DD hh:mm:ss');
             Todo.create($scope.editTodo,function(data){
+                data.assignees = $scope.editTodo.assignees;
                 $scope.toggleNewTodoView();
                 $scope.resetEditTodo();
                 $scope.todos.push(data);
@@ -359,8 +389,75 @@ vaControllers.controller('todoList',
 }]);
 
 vaControllers.controller('todoDetails',
-    ['$scope','$routeParams','Todo',
-    function ($scope,$routeParams,Todo) {
+    ['$scope','$routeParams','$q','Session','Todo','User',
+    function ($scope,$routeParams,$q,Session,Todo,User) {
+        $scope.session = Session;
         $scope.todo = Todo.get({todoId:$routeParams.todoId});
+        
+        $scope.closeTodo = function(){
+            Todo.closeState({todoId:$routeParams.todoId},{},function(data){
+                $scope.todo = data;
+            });
+        };
+        $scope.reopenTodo = function(){
+            Todo.pendingState({todoId:$routeParams.todoId},{},function(data){
+                $scope.todo = data;
+            });
+        };
+        
+        
+        
+        $scope.resetEditTodo = function(){
+            $scope.editTodo = {
+                name: '',
+                priority: 'normal',
+                deadline: ''
+                
+            };
+        };
+        $scope.resetEditTodo();
+        
+        $scope.editing = false;
+        $scope.startEditing = function(){
+            $scope.editing = true;
+            $scope.editTodo = $scope.todo;
+            for(var i = 0; i < $scope.editTodo.assignees.length; i++){
+                $scope.editTodo.assignees[i].text = $scope.editTodo.assignees[i].username;
+            }
+        };
+        
+        $scope.saveChanges = function(){
+            Todo.save({todoId:$routeParams.todoId},$scope.editTodo,function(){
+                $scope.todo = $scope.editTodo;
+                $scope.editing = false; 
+            });
+        };
+        $scope.discardChanges = function(){
+            $scope.editing = false;
+        };
+        
+        
+        var autocompleteAssignees = User.query();
+        $scope.findAutocompleteAssignees = function($query){
+            
+            $query = $query.toLowerCase();
+            
+            var candidates = [];
+            for(var i=0; i < autocompleteAssignees.length; i++){
+                var c = autocompleteAssignees[i];
+//                console.log(c);?
+//                console.log(c.username,c.email);
+                if (c.username.toLowerCase().match($query) || c.email.toLowerCase().match($query)){
+                    console.log('match for ',c.username);
+                    c.text = c.username;
+                    candidates.push(c);
+                }
+            }
+            
+            var deferred = $q.defer();
+            deferred.resolve(candidates);
+            return deferred.promise;
+        };
+        
 //        $scope.invitees = Invitee.query({eventId:$routeParams.eventId});
 }]);

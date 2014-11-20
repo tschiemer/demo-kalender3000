@@ -26,4 +26,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         public function todos(){
             return $this->belongsToMany('Todo');
         }
+        
+        public function closedTodos(){
+            return $this->hasMany('Todo');
+        }
 }

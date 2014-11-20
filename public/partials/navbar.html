@@ -1,7 +1,21 @@
+
+            <div id="navbar" class="navbar-collapse collapse">
+              
+                
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#" ng-show="pageTitle">{{pageTitle}}</a>
+            </div>
                 <ul class="nav navbar-nav">
-                    <li><a href="#events" ng-click="goto('events')">Events</a></li>
-                    <li><a ng-show="session.loggedIn()" href="#todos" ng-click="goto('todos')">Aufgaben</a></li>
+                    <li><a href="#events" ng-click="goto('events')" ng-show="!session.isTemp()">Events</a></li>
+                    <li><a ng-show="session.loggedIn() && !session.isTemp()" href="#todos" ng-click="goto('todos')">Aufgaben</a></li>
                     <li><a ng-show="session.loggedIn()" href="#users" ng-click="goto('users')">Benutzer</a></li>
+                    <!--<li><a ng-show="session.loggedIn()" href="#settings" ng-click="goto('settings')">Einstellungen</a></li>-->
               </ul>
                 <form ng-show="!session.loggedIn()" class="navbar-form navbar-right" role="form">
                     <div class="form-group">
@@ -16,6 +30,7 @@
                 <div ng-show="session.loggedIn()" class="navbar-right">
                     <small class="navbar-text">Signed in as <i>{{ session.data.email }}</i></small>
                     <form class="navbar-form navbar-right">
-                        <button ng-click="logout()" class="btn btn-danger btn-sm">Logout</button>
+                        <button ng-click="logout()" class="btn btn-danger btn-sm" ng-hide="session.isTemp()">Logout</button>
                     </form>
                 </div>
+            </div><!--/.nav-collapse -->

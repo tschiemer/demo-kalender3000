@@ -18,9 +18,67 @@ Route::model('user','User');
 
 Route::pattern('token','.+');
 
-Route::get('/', function()
+Route::get('/', array('before'=>'db.exists',function()
 {
-	return View::make('public');
+    return View::make('public');
+}));
+
+Route::group(array('prefix'=>'/setup'),function(){
+    
+    try {
+        User::first();
+        
+        Route::get('/{asdf?}',function($any=NULL){
+            return 'Datenbank bereits aufgesetzt. <a href="'.url().'">Gehe zu Webseite</a>';
+        });
+        
+    } catch (Exception $e){
+        
+        Route::get('/',function(){
+            return '<a href="setup/run">Datenbank aufsetzen</a>';
+        });
+        
+        Route::get('/run',function(){
+            
+            $output = "<b>Erstelle Datenbank-Schema...</b>\n";
+            
+            $cmd = 'php ../artisan migrate';
+            
+            $descriptorspec = array(
+                0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
+                1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
+                2 => array("pipe", "w") // stderr is a file to write to
+             );
+
+//            $cwd = '/tmp';
+//            $env = array('some_option' => 'aeiou');
+
+            $process = proc_open($cmd, $descriptorspec, $pipes);//, $cwd, $env);
+
+            if (is_resource($process)) {
+                // $pipes now looks like this:
+                // 0 => writeable handle connected to child stdin
+                // 1 => readable handle connected to child stdout
+                // Any error output will be appended to /tmp/error-output.txt
+
+                fclose($pipes[0]);
+
+                $output .= stream_get_contents($pipes[1]);
+                fclose($pipes[1]);
+                
+                $output .= stream_get_contents($pipes[2]);
+                fclose($pipes[2]);
+
+                // It is important that you close any pipes before calling
+                // proc_close in order to avoid a deadlock
+                $return_value = proc_close($process);
+            } else {
+                $return_value = false;
+            }
+            
+            return nl2br($output);
+        });
+    }
 });
 
 Route::get('login',function(){
@@ -45,6 +103,40 @@ Route::get('logout',function(){
     Auth::logout();
 });
 
+Route::get('setting',array('before' => 'auth', function(){
+    return Setting::where('internal',FALSE)->get()->toJson(JSON_NUMERIC_CHECK);
+}));
+
+Route::get('setting/{key}',function($key = NULL){
+    $setting = Setting::where('key',$key)->first();
+    if ($setting){
+        return $setting->toJson();
+    } else {
+        return;
+    }
+});
+
+//Route::get('dbExists',function(){
+//    try {
+//        User::first();
+//        $response = Response::json(true);
+//    } catch (Exception $ex) {
+//        $response = Response::json(false);
+//    }
+//    return $response;
+//});
+
+Route::get('user/exists',function(){
+    $response = Response::json(false);
+    try {
+        if (User::first()){
+            $response = Response::json(true);
+        }
+    } catch (Exception $ex) {
+    }
+    return $response;
+});
+
 Route::get('user',array('before' => 'auth', function(){
     return User::with('todos')->get()->toJson(JSON_NUMERIC_CHECK);
 }));
@@ -65,12 +157,16 @@ Route::post('user',array('before' => 'auth', function(){
             'password' => Input::get('password'),
             'user' => $user
         ), function($message)use($newUser,$user){
-            $message->from($user->email);
+            if ($user){
+                $message->from($user->email);
+            }
             $message->to($newUser->email);
             $subject = "Neuer Account";
             $message->subject($subject);
         });
     }
+    
+    return User::find($newUser->id)->toJson();
 }));
 
 Route::get('user/{user}',array('before' => 'auth', function(User $user){
@@ -168,11 +264,11 @@ Route::delete('invitee/{event}/{invitee}',array('before' => 'auth', function(VAE
 
 
 Route::get('todo',array('before' => 'auth', function(){
-    return Todo::with('assignees')->get()->toJson(JSON_NUMERIC_CHECK);
+    return Todo::with('assignees','closedBy')->get()->toJson(JSON_NUMERIC_CHECK);
 }));
 
 Route::get('todo/{todo}',array('before' => 'auth', function(Todo $todo){
-    return $todo->toJson(JSON_NUMERIC_CHECK);
+    return Todo::with('assignees','closedBy')->find($todo->id)->toJson(JSON_NUMERIC_CHECK);
 }));
 
 Route::post('todo',array('before' => 'auth', function(){
@@ -194,12 +290,45 @@ Route::post('todo',array('before' => 'auth', function(){
         }
     }
     
-    return $todo->toJson(JSON_NUMERIC_CHECK);
+    return Todo::with('assignees','closedBy')->find($todo->id)->toJson(JSON_NUMERIC_CHECK);
+}));
+
+Route::put('todo/{todo}', array('before' => 'auth', function(Todo $todo){
+    
+    $todo->name = Input::get('name','Ohne Name');
+    $todo->priority = Input::get('priority','normal');
+    $todo->deadline = Input::get('deadline','0000-00-00 00:00:00');
+    $todo->description = Input::get('description','');
+    $todo->save();
+    
+    
+    $todo->assignees()->detach();
+    
+    
+    $assignees = Input::get('assignees',array());
+    foreach($assignees as $a){
+//        var_dump($a);
+//        die('asdf');
+        $assignee = User::find($a['id']);
+        if ($assignee){
+            $todo->assignees()->save($assignee);
+        }
+    }
 }));
 
 Route::delete('todo/{todo}',array('before' => 'auth', function(Todo $todo){
     $todo->delete();
 }));
+
+Route::post('todo/{todo}/{state}',array('before' => 'auth',function(Todo $todo, $action){
+    if ($action == 'close'){
+        $todo->closeByUser(Auth::user());
+    } else if ($action == 'reopen') {
+        $todo->reopen();
+    }
+    $todo->save();
+    return Todo::with('assignees','closedBy')->find($todo->id)->toJson(JSON_NUMERIC_CHECK);
+}))->where('state','close|reopen');
 
 //Route::post('todo/{todo}/priority/{priority}',function(Todo $todo,$priority){
 //    $todo->priority = $priority;

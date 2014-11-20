@@ -54,10 +54,21 @@ require(['jquery'],function(){
 //                       templateUrl: 'partials/user-details.html',
 //                       controller: 'userDetails'
 //                     }).
+                    when('/settings',{
+                        templateUrl: 'partials/settings.html',
+                        controller: 'Settings'
+                     }).
+                    when('/setup',{
+                        templateUrl: 'partials/setup.html',
+                        controller: 'Setup'
+                    }).
                      otherwise({
                        redirectTo: '/events'
                      });
                  }]);
+             
+//             vaApp.factory('setupRequirement',['$location','$http',function($location,$http){
+//             }]);
              
             require(['js/controllers','js/services'],function(){
                 angular.element(document).ready(function() {

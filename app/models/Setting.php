@@ -4,25 +4,26 @@ class Setting extends Eloquent {
     
     protected $table = 'settings';
     
-//    static public function int($key){
-//        $setting = Setting::findOrCreate(array('key'=>$key));
-//        return intval($setting->value);
-//    }
-//    
-//    static public function float($key){
-//        $setting = Setting::findOrCreate(array('key'=>$key));
-//        return floatval($setting->value);
-//    }
-//    
-//    static public function string($key){
-//        $setting = Setting::findOrCreate(array('key'=>$key));
-//        return $setting->value;
-//    }
-//    
-//    static public function object($key){
-//        $setting = Setting::findOrCreate(array('key'=>$key));
-//        return json_decode($setting->value);
-//    }
+    public function g($default=NULL){
+        if ($type === NULL){
+            return $default;
+        } else {
+            return $this->value;
+        }
+    }
+    
+    public function getValueAttribute($value){
+        if ($value === NULL){
+            return NULL;
+        } else {
+            return json_decode($value);
+        }
+    }
+    
+    public function setValueAttribute($value){
+        $this->attributes['type'] = gettype($value);
+        $this->attributes['value'] = json_encode($value);
+    }
     
     static public function get($key,$default=NULL){
         $setting = Setting::where('key',$key)->first();
@@ -31,19 +32,18 @@ class Setting extends Eloquent {
             $setting->key = $key;
             $setting->value = json_encode($default);
             $setting->save();
-            return $default;
-        } else {
-            return json_decode($setting->value);
         }
+        return $setting->g($default);
     }
     
-    static public function set($key,$value){
+    static public function set($key,$value,$internal=FALSE){
         $setting = Setting::where('key',$key)->first();
         if (empty($setting)){
             $setting = new Setting();
             $setting->key = $key;
+            $setting->internal = (bool)$internal;
         }
-        $setting->value = json_encode($value);
+        $setting->value = $value;
         $setting->save();
     }
     

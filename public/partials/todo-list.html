@@ -1,67 +1,92 @@
-
-<div class="row">
-    <div class="col-sm-12">
-        <a class="text-center"><h4 ng-click="toggleNewTodoView()">Neue Aufgabe erstellen</h4></a>
-        <!--<br/>-->
-        <form id="newTodoForm" style="display:none" class="form-horizontal" role="form" ng-model="newTodo">
-            <div ng-include="'partials/todo-edit.html'"></div>
-            
-            <div class="form-group">
-              <div class="col-sm-offset-2 col-sm-10">
-                <button ng-click="saveTodo()" type="submit" class="btn btn-success">Erstellen</button>
-              </div>
-            </div>
-        </form>
-        <hr/>
-    </div>
+<div ng-hide="session.loggedIn()">
+    <div class="alert alert-warning">Nicht eingeloggt, du Schlawiner!</div>
 </div>
 
+<div  ng-show="session.loggedIn()">
+    <div class="row">
+        <div class="col-sm-12">
+            <a class="text-center"><h4 ng-click="toggleNewTodoView()">Neue Aufgabe erstellen</h4></a>
+            <!--<br/>-->
+            <form id="newTodoForm" style="display:none" class="form-horizontal" role="form" ng-model="newTodo">
+                <div ng-include="'partials/todo-edit.html'"></div>
 
-<style>
-    div.todo-list-item {
-        margin: 5px 0;
-        padding: 5px;
-        /*border: 1px solid transparent;*/
-        border-radius: 4px;
-        -webkit-transition: background .2s ease-in-out;
-        -o-transition: background .2s ease-in-out;
-        transition: background .2s ease-in-out;
-    }
-    div.todo-list-item:hover {
-        /*border: 1px solid #ddf;*/
-        background-color: #269abc;
-    }
-</style>
-
-<div class="row" ng-hide="todos.length">
-    <div class="col-sm-12">
-        <div class="alert alert-warning text-center text-capitalize" role="alert">
-            Keine Aufgaben gefunden!
+                <div class="form-group">
+                  <div class="col-sm-offset-2 col-sm-10">
+                    <button ng-click="saveTodo()" type="submit" class="btn btn-success">Erstellen</button>
+                  </div>
+                </div>
+            </form>
+            <hr/>
         </div>
     </div>
-</div>
 
-<div class="row todo-list-item" ng-repeat="todo in todos | orderBy:orderByPriority | orderBy:'deadline'">
-    <div class="col-sm-3 clickable text-center" ng-click="pick(todo)">
-        <p class="lead" style="margin-bottom: 5px;">{{ formatDate(todo.deadline) }}</p>
-        <!--<small>-->
-            <span class="label label-danger" ng-show="todo.priority=='critical'">Kritisch</span>
-            <span class="label label-warning" ng-show="todo.priority=='high'">Hoch</span>
-            <span class="label" style="color: black" ng-show="todo.priority=='normal'">Normal</span>
-            <span class="label" style="color: lightgrey" ng-show="todo.priority=='low'">Tief</span>
-        <!--</small>-->
-    </div>
-    <div class="col-sm-5 clickable" ng-click="pick(todo)">
-        <p><b>{{todo.name}}</b></p>
-        <p ng-show="todo.description"><small>{{todo.description}}</small></p>
-    </div>
-    <div class="col-sm-2 clickable" ng-click="pick(todo)">
-        <span ng-repeat="assignee in todo.assignees">
-            <span class="label label-default">{{assignee.username}}</span>
-        </span>
-    </div>
-    <div class="col-sm-2 text-right">
-        <button ng-show="session.loggedIn()" ng-click="removeTodo($index)" class="btn btn-danger btn-sm">Löschen</button>
-    </div>
-</div>
 
+    <style>
+        div.todo-list-item {
+            margin: 5px 0;
+            padding: 5px;
+            /*border: 1px solid transparent;*/
+            border-radius: 4px;
+            -webkit-transition: background .2s ease-in-out;
+            -o-transition: background .2s ease-in-out;
+            transition: background .2s ease-in-out;
+        }
+        div.todo-list-item:hover {
+            /*border: 1px solid #ddf;*/
+            background-color: #269abc;
+        }
+    </style>
+    
+    <div>
+        <small>
+            Filtere Aufgaben:  
+            <label>
+                <input ng-model="showByState" value="" name="showByState" type="radio"> Alle
+            </label>
+            <label>
+                <input ng-model="showByState" value="pending" name="showByState" type="radio" checked> Pendent
+            </label>
+            <label>
+                <input ng-model="showByState" value="closed" name="showByState" type="radio"> Abgeschlossen
+            </label>
+        </small>
+    </div>
+    
+    <hr/>
+
+    <div class="row todo-list-item" ng-repeat="todo in todos | filter:showByState | orderBy:orderByPriority | orderBy:'deadline' as results">
+        <div class="col-sm-3 clickable text-center" ng-click="pick(todo)">
+            <p class="lead" style="margin-bottom: 5px;">{{ formatDate(todo.deadline) }}</p>
+            <!--<small>-->
+                <span class="label label-danger" ng-show="todo.priority=='critical'">Kritisch</span>
+                <span class="label label-warning" ng-show="todo.priority=='high'">Hoch</span>
+                <span class="label" style="color: black" ng-show="todo.priority=='normal'">Normal</span>
+                <span class="label" style="color: lightgrey" ng-show="todo.priority=='low'">Tief</span>
+            <!--</small>-->
+        </div>
+        <div class="col-sm-5 clickable" ng-click="pick(todo)">
+            <p>
+                <b>{{todo.name}}</b>
+                <span ng-show="todo.state=='closed'" class="label label-success">Abgeschlossen</span>
+            </p>
+            <p ng-show="todo.description"><small>{{todo.description}}</small></p>
+        </div>
+        <div class="col-sm-2 clickable" ng-click="pick(todo)">
+            <span ng-repeat="assignee in todo.assignees">
+                <span class="label label-default">{{assignee.username}}</span>
+            </span>
+        </div>
+        <div class="col-sm-2 text-right">
+            <button ng-show="session.loggedIn()" ng-click="removeTodo($index)" class="btn btn-danger btn-sm">Löschen</button>
+        </div>
+    </div>
+    
+    <div class="row" ng-hide="results.length">
+        <div class="col-sm-12">
+            <div class="alert alert-warning text-center text-capitalize" role="alert">
+                Keine Aufgaben gefunden!
+            </div>
+        </div>
+    </div>
+    
+</div>
